@@ -77,7 +77,7 @@ describe('Failing Auth Test', () => {
                 },
                 /**
                  * I need to specify my user id otherwise I'll get
-                 * groups where other people have uncompleted tasks
+                 * `my` groups where there are any uncompleted tasks
                  */
                 assigneeId: {
                   eq: 'user-2',
