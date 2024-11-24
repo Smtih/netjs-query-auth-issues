@@ -4,7 +4,6 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GroupModule } from './group/group.module';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
-import { UserModule } from './user/user.module';
 import { TaskModule } from './task/task.module';
 
 @Module({
@@ -25,7 +24,6 @@ import { TaskModule } from './task/task.module';
       playground: false,
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
-    UserModule,
     GroupModule,
     TaskModule,
   ],

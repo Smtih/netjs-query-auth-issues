@@ -9,9 +9,6 @@ export class GroupEntity {
   @Column()
   name!: string;
 
-  @Column()
-  ownerId!: string;
-
   @OneToMany(() => TaskEntity, (task) => task.group)
   tasks: TaskEntity[];
 }

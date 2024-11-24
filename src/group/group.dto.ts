@@ -10,10 +10,7 @@ import { TaskDTO } from '../task/task.dto';
 @ObjectType('Group')
 @Authorize<GroupDTO>({
   authorize: (context) => ({
-    or: [
-      { id: { in: context.req.user.groups } },
-      { ownerId: { eq: context.req.user.id } },
-    ],
+    id: { in: context.req.user.groups },
   }),
 })
 @FilterableUnPagedRelation('tasks', () => TaskDTO)
@@ -23,7 +20,4 @@ export class GroupDTO {
 
   @FilterableField()
   name!: string;
-
-  @FilterableField()
-  ownerId!: string;
 }

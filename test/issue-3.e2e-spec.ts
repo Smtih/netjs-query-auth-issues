@@ -4,7 +4,6 @@ import { getApolloServer } from '@nestjs/apollo';
 import gql from 'graphql-tag';
 import { INestApplication } from '@nestjs/common';
 import { getDataSourceToken } from '@nestjs/typeorm';
-import { UserEntity } from '../src/user/user.entity';
 import { GroupEntity } from '../src/group/group.entity';
 import { TaskEntity } from '../src/task/task.entity';
 
@@ -30,26 +29,20 @@ describe('Failing Auth Test', () => {
       const dataSource = app.get(getDataSourceToken());
 
       await dataSource
-        .getRepository(UserEntity)
-        .save({ id: 'user-1', name: 'Group Owner' });
-      await dataSource
-        .getRepository(UserEntity)
-        .save({ id: 'user-2', name: 'Me' });
-      await dataSource
         .getRepository(GroupEntity)
-        .save({ id: 'group-1', name: 'Group 1', ownerId: 'user-1' });
+        .save({ id: 'group-1', name: 'Group 1' });
       await dataSource.getRepository(TaskEntity).save({
         id: 'task-1',
-        name: 'Owners Secret Task',
+        name: 'Another Secret Task',
         completed: false,
-        assigneeId: 'user-1',
+        assigneeId: 'another-user',
         groupId: 'group-1',
       });
       await dataSource.getRepository(TaskEntity).save({
         id: 'task-2',
         name: 'My Secret Task',
         completed: true,
-        assigneeId: 'user-2',
+        assigneeId: 'my-user',
         groupId: 'group-1',
       });
     });
@@ -80,7 +73,7 @@ describe('Failing Auth Test', () => {
                  * `my` groups where there are any uncompleted tasks
                  */
                 assigneeId: {
-                  eq: 'user-2',
+                  eq: 'my-user',
                 },
               },
             },
@@ -88,7 +81,7 @@ describe('Failing Auth Test', () => {
         },
         {
           contextValue: {
-            req: { user: { id: 'user-2', groups: ['group-1'] } },
+            req: { user: { id: 'my-user', groups: ['group-1'] } },
           },
         },
       );
@@ -127,7 +120,7 @@ describe('Failing Auth Test', () => {
                   is: false,
                 },
                 assigneeId: {
-                  neq: 'user-2',
+                  neq: 'my-user',
                 },
               },
             },
@@ -135,7 +128,7 @@ describe('Failing Auth Test', () => {
         },
         {
           contextValue: {
-            req: { user: { id: 'user-2', groups: ['group-1'] } },
+            req: { user: { id: 'my-user', groups: ['group-1'] } },
           },
         },
       );
