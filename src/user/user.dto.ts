@@ -5,15 +5,14 @@ import {
 } from '@ptc-org/nestjs-query-graphql';
 import { ObjectType, ID } from '@nestjs/graphql';
 
-@ObjectType('TodoItem')
-@Authorize<TodoItemDTO>({ authorize: () => ({ completed: { is: false } }) })
-export class TodoItemDTO {
+@ObjectType('User')
+@Authorize<UserDTO>({
+  authorize: (context) => ({ id: { eq: context.req.user.id } }),
+})
+export class UserDTO {
   @IDField(() => ID)
   id!: number;
 
   @FilterableField()
-  title!: string;
-
-  @FilterableField()
-  completed!: boolean;
+  name!: string;
 }

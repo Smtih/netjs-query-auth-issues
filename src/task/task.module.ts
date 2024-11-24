@@ -1,23 +1,23 @@
 import { NestjsQueryGraphQLModule } from '@ptc-org/nestjs-query-graphql';
 import { NestjsQueryTypeOrmModule } from '@ptc-org/nestjs-query-typeorm';
 import { Module } from '@nestjs/common';
-import { TodoItemDTO } from './todo-item.dto';
-import { TodoItemEntity } from './todo-item.entity';
+import { TaskDTO } from './task.dto';
+import { TaskEntity } from './task.entity';
 
 @Module({
   imports: [
     NestjsQueryGraphQLModule.forFeature({
       // import the NestjsQueryTypeOrmModule to register the entity with typeorm
       // and provide a QueryService
-      imports: [NestjsQueryTypeOrmModule.forFeature([TodoItemEntity])],
+      imports: [NestjsQueryTypeOrmModule.forFeature([TaskEntity])],
       // describe the resolvers you want to expose
       resolvers: [
         {
-          EntityClass: TodoItemEntity,
-          DTOClass: TodoItemDTO,
+          EntityClass: TaskEntity,
+          DTOClass: TaskDTO,
         },
       ],
     }),
   ],
 })
-export class TodoItemModule {}
+export class TaskModule {}

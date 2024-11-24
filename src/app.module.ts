@@ -2,9 +2,10 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TodoItemModule } from './todo-item/todo-item.module';
-import { SubTaskModule } from './sub-task/sub-task.module';
+import { GroupModule } from './group/group.module';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+import { UserModule } from './user/user.module';
+import { TaskModule } from './task/task.module';
 
 @Module({
   imports: [
@@ -24,8 +25,9 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
       playground: false,
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
-    TodoItemModule,
-    SubTaskModule,
+    UserModule,
+    GroupModule,
+    TaskModule,
   ],
 })
 export class AppModule {}
