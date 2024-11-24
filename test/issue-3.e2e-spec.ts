@@ -34,30 +34,32 @@ describe('Failing Auth Test', () => {
         .save({ id: 'user-1', name: 'Group Owner' });
       await dataSource
         .getRepository(UserEntity)
-        .save({ id: 'user-2', name: 'Group Member' });
+        .save({ id: 'user-2', name: 'Me' });
       await dataSource
         .getRepository(GroupEntity)
-        .save({ id: 'group-1', name: 'Group 1', ownerId: '1' });
+        .save({ id: 'group-1', name: 'Group 1', ownerId: 'user-1' });
       await dataSource.getRepository(TaskEntity).save({
         id: 'task-1',
         name: 'Owners Secret Task',
+        completed: false,
         assigneeId: 'user-1',
         groupId: 'group-1',
       });
       await dataSource.getRepository(TaskEntity).save({
         id: 'task-2',
-        name: 'Members Secret Task',
+        name: 'My Secret Task',
+        completed: true,
         assigneeId: 'user-2',
         groupId: 'group-1',
       });
     });
 
-    test('Find my groups with tasks assigned to another user', async () => {
+    test('Find my groups where I have not completed all my tasks', async () => {
       const result = await getApolloServer(app).executeOperation(
         {
           query: gql`
-            query {
-              groups {
+            query AllGroups($filter: GroupFilter!) {
+              groups(filter: $filter) {
                 edges {
                   node {
                     id
@@ -70,6 +72,13 @@ describe('Failing Auth Test', () => {
           variables: {
             filter: {
               tasks: {
+                completed: {
+                  is: false,
+                },
+                /**
+                 * I need to specify my user id otherwise I'll get
+                 * groups where other people have uncompleted tasks
+                 */
                 assigneeId: {
                   eq: 'user-2',
                 },
@@ -84,10 +93,56 @@ describe('Failing Auth Test', () => {
         },
       );
 
+      expect(result.body).toMatchObject({
+        singleResult: {
+          errors: undefined,
+          data: {
+            groups: {
+              edges: [],
+            },
+          },
+        },
+      });
+    });
+
+    test('Find my groups where others have not completed tasks', async () => {
+      const result = await getApolloServer(app).executeOperation(
+        {
+          query: gql`
+            query AllGroups($filter: GroupFilter!) {
+              groups(filter: $filter) {
+                edges {
+                  node {
+                    id
+                    name
+                  }
+                }
+              }
+            }
+          `,
+          variables: {
+            filter: {
+              tasks: {
+                completed: {
+                  is: false,
+                },
+                assigneeId: {
+                  neq: 'user-2',
+                },
+              },
+            },
+          },
+        },
+        {
+          contextValue: {
+            req: { user: { id: 'user-2', groups: ['group-1'] } },
+          },
+        },
+      );
+
       /**
-       * The fact I return a group here means that this group has a task assigned to user-2.
-       * The permissions I've set up would ideally not allow me to infer such information
-       * as I don't have any permissions to user-2 or their tasks, we just happen to share a group.
+       * I can now spy on other users and whether they have completed tasks or not
+       * even though I have no permission to their tasks by seeing if this query returns a group
        */
       expect(result.body).toMatchObject({
         singleResult: {

@@ -22,6 +22,9 @@ export class TaskDTO {
   name!: string;
 
   @FilterableField()
+  completed!: boolean;
+
+  @FilterableField()
   groupId!: string;
 
   @FilterableField()
